@@ -4,6 +4,7 @@ import Start from './Start';
 import Error from './Error';
 import Action from './Action';
 import Result from './Result';
+import Footer from "./Footer";
  
 export default function Main() {
 
@@ -15,6 +16,7 @@ export default function Main() {
     status: 'loading',
     clickedIndex: null,
     highScor: 0,
+    seconds: 300
   }
 
   function reducer(state, action) {
@@ -76,8 +78,14 @@ export default function Main() {
           index: 0,
           ask: true,
           points: 0,
+          seconds: 300,
           status: 'ready' 
         }
+        case 'setSeconds':
+          return {
+            ...state,
+            seconds: state.seconds - 1,
+          }
       }
     }
     
@@ -88,7 +96,8 @@ export default function Main() {
     ask, 
     points, 
     clickedIndex,
-    highScor
+    highScor,
+    seconds
   }, displticn] = useReducer(reducer, init)
   
   useEffect(()=> {
@@ -130,6 +139,15 @@ export default function Main() {
     // displticn({type: 'ready'});
   }
 
+  function handleSetSeconds() {
+    displticn({type: 'setSeconds'})
+  }
+
+  function handleFinishTheTime() {
+    displticn({type: 'finish'})
+  }
+
+
   let totalPoints = questions.map(el => el.points).reduce((curr, next) => curr + next ,0);
   const totalQuectionLen = questions.length
 
@@ -138,18 +156,28 @@ export default function Main() {
       {status === 'loading' && <Loader />}
       {status === 'error' && <Error />}
       {status === 'ready' && <Start questions={questions} startQues={startQues} />}
-      {status === 'action' && <Action 
-        questions={questions} 
-        index={index} 
-        inc={handleIncriment} 
-        showResult={handleShowResult} 
-        ask={ask}
-        checkTheAnser={handleAskBool}
-        points={points}
-        totalQuectionLen={totalQuectionLen}
-        totalPoints={totalPoints}
-        clickedIndex={clickedIndex}
-      />}
+      {status === 'action' && 
+      <>
+        <Action 
+          questions={questions} 
+          index={index} 
+          inc={handleIncriment} 
+          showResult={handleShowResult} 
+          ask={ask}
+          checkTheAnser={handleAskBool}
+          points={points}
+          totalQuectionLen={totalQuectionLen}
+          totalPoints={totalPoints}
+          clickedIndex={clickedIndex}
+        />
+        <Footer 
+          seconds={seconds}
+          setSeconds={handleSetSeconds}
+          finishTheTime={handleFinishTheTime}
+           />
+      </>
+
+      }
       {status === 'finished' && <Result 
         points={points} 
         totalPoints={totalPoints} 
